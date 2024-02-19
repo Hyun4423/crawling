@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load bootstrap4 %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+    <!--    {% bootstrap_css %}-->
+    <!--    {% bootstrap_javascript %}-->
+    <meta charset="UTF-8">
+    <title>searchIndex</title>
+</head>
+<body>
+
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1></h1>
+                </div>
+            </div>
+        </div><!-- /.container-fluid -->
+    </section>
+
+    <section class="content">
+
+        <!-- 검색영역 -->
+
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header collapsable">
+                    <h3 class="card-title">Filter</h3>
+
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    <div class="row">
+                        <div class="col-md-10 offset-md-1">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label>검색어:</label>
+                                        <select class="select" class="form-control" style="width: 100%;" id="keywords">
+                                            <option value="전체">전체</option>
+                                            {% for search in searchList %}
+                                            <option value="{{search.keyword}}">{{search.keyword}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--                            <button type="button" class="btn btn-primary" style="float: right;" onclick="search()">검색</button>-->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 본문 -->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body table-responsive p-0">
+                            <div id="content" style="overflow: auto"></div>
+                            <table class="table table-hover table-bordered">
+                                <thead>
+                                <tr>
+                                    <th style="width: 70%">title</th>
+                                    <th style="width: 10%">price</th>
+                                    <th style="width: 10%">dlv</th>
+                                    <th style="width: 10%">comp</th>
+                                </tr>
+                                </thead>
+                                <tbody id="results">
+                                {% if goodsList %}
+                                {% for goods in goodsList %}
+                                <tr>
+                                    <td>
+                                        <a target="_blank" href="{{ goods.link }}">{{goods.title}}</a>
+                                    </td>
+                                    <td>{{goods.price}}</td>
+                                    <td>{{goods.dlv}}</td>
+                                    <td>
+                                        {% if goods.compImg %}
+                                        <img src="{{ goods.compImg }}" alt=" {{ goods.compText }} " srcset="">
+                                        {% else %}
+                                        {{ goods.compText }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">검색결과가 없습니다.</td>
+                                </tr>
+                                {% endif%}
+
+                                </tbody>
+
+                            </table>
+                        </div>
+                        <!-- /.card-body -->
+
+                    </div>
+                    <!-- /.col -->
+                </div>
+                <!-- /.row -->
+            </div>
+
+        </div>
+    </section>
+
+</body>
+</html>
+
+<script>
+
+    $(function () {
+        $("#keywords").change((e) => {
+
+            let csrf_token = $('[name="csrfmiddlewaretoken"]').val(); // CSRF 토큰 가져오기
+
+            $.ajax({
+                type: "POST",
+                url: "/search",
+                data: {
+                    "csrfmiddlewaretoken": csrf_token,
+                    "keyword": $("#keywords").val()
+                },
+                success: function (res) {
+
+                    console.log("res",res);
+
+                    if(res.goodsList.length < 1) {
+                        $("#results").html('<tr><td colspan = "4" class="text-center">검색결과가 없습니다.</td></tr>')
+                    } else {
+                        $("#results").empty();
+                        res.goodsList.forEach(p => {
+                            let $tr = $("<tr></tr>")
+                            let $row1 = $("<td></td>").append('<a target="_blank" href="'+p.link+'">'+p.title+'</a>');
+                            let $row2 = $("<td></td>").text(p.price);
+                            let $row3 = $("<td></td>").text(p.dlv);
+                            let $row4 = $("<td></td>");
+                            if(p.compImg) {
+                                $row4.append('<img src="'+p.compImg+'" alt="'+p.compText+'">')
+                            } else {
+                                $row4.text(p.compText);
+                            }
+
+                            $tr.append($row1);
+                            $tr.append($row2);
+                            $tr.append($row3);
+                            $tr.append($row4);
+                            $("#results").append($tr);
+                        })
+                    }
+
+
+                    console.log("res", res);
+                }, error: function (xhr, status, error) {
+
+                }
+            });
+
+        });
+    })
+
+    function search() {
+        let keyword = $("#keyword").val();
+
+        let csrf_token = $('[name="csrfmiddlewaretoken"]').val(); // CSRF 토큰 가져오기
+
+        $.ajax({
+            type: "POST",
+            url: "/search",
+            data: {
+                "csrfmiddlewaretoken": csrf_token,
+                "keyword": keyword
+            },
+            success: function (res) {
+                console.log("res", res);
+                if (res && res.content) {
+                    $("#content").html(res.content);
+                }
+                if (res && res.styles) {
+                    res.styles.forEach(p => {
+                        $("head").append(p);
+                    })
+                }
+                if (res && res.links) {
+                    res.links.forEach(p => {
+                        let link = '<link rel="stylesheet" href="' + p + '">'
+                        $("head").append(link);
+                    })
+                }
+            }, error: function (xhr, status, error) {
+
+            }
+        });
+
+    }
+</script>
