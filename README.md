@@ -14,13 +14,16 @@ django
 # # requests
 # pip install requests
 #
+# # beautifulsoup4
+# pip install beautifulsoup4
+#
 # # bootstrap
 # pip install django-bootstrap4
 #
-# create admin
-# py manage.py createsuperuser
+# # create admin
+# python manage.py createsuperuser
 #
-# migrate
+# # migrate
 # python manage.py makemigrations [app_name]
 # python manage.py migrate
 

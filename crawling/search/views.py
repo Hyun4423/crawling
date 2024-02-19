@@ -6,6 +6,9 @@ import requests
 import json
 from .models import Search
 
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+}
 
 def index(request):
     searchList = Search.objects.all()
@@ -36,7 +39,7 @@ def index(request):
             ('xq', ''),
         )
 
-        res = requests.get(url, params)
+        res = requests.get(url, params=params, headers=headers)
         html = res.text
 
         soup = BeautifulSoup(html, 'html.parser')
@@ -107,7 +110,7 @@ def search(request):
             ('xq', ''),
         )
 
-        res = requests.get(url, params)
+        res = requests.get(url, params=params, headers=headers)
         html = res.text
 
         soup = BeautifulSoup(html, 'html.parser')
