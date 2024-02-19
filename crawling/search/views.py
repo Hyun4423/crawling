@@ -16,7 +16,7 @@ def index(request):
 
     for obj in searchList:
 
-        url = "http://search.shopping.naver.com/search/all"
+        url = "https://search.shopping.naver.com/search/all"
         keyword = obj.keyword
 
         # params = None
@@ -38,10 +38,11 @@ def index(request):
             ('xq', ''),
         )
 
-        proxy_server = random_us_proxy()
-        proxies = {"http": 'http://' + proxy_server, 'https': 'https://' + proxy_server}
+        # proxy_server = random_us_proxy()
+        # proxies = {"http": 'http://' + proxy_server, 'https': 'https://' + proxy_server}
+        # res = requests.get(url, params=params, headers=headers, proxies=proxies)
 
-        res = requests.get(url, params=params, headers=headers, proxies=proxies, verify=false)
+        res = requests.get(url, params=params, headers=headers)
         html = res.text
 
         soup = BeautifulSoup(html, 'html.parser')
@@ -112,10 +113,11 @@ def search(request):
             ('xq', ''),
         )
 
-        proxy_server = random_us_proxy()
-        proxies = {"http": 'http://' + proxy_server, 'https': 'https://' + proxy_server}
+        # proxy_server = random_us_proxy()
+        # proxies = {"http": 'http://' + proxy_server, 'https': 'https://' + proxy_server}
+        # res = requests.get(url, params=params, headers=headers, proxies=proxies)
 
-        res = requests.get(url, params=params, headers=headers, proxies=proxies, verify=false)
+        res = requests.get(url, params=params, headers=headers)
         html = res.text
 
         soup = BeautifulSoup(html, 'html.parser')
