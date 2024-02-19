@@ -49,6 +49,8 @@ def index(request):
 
         content = soup.select_one("#content")
 
+        print("content => {}".format(content))
+
         items = content.select("div.basicList_list_basis__uNBZx > div > div")
 
         for item in items:
