@@ -42,7 +42,7 @@ def index(request):
         # proxies = {"http": 'http://' + proxy_server, 'https': 'https://' + proxy_server}
         # res = requests.get(url, params=params, headers=headers, proxies=proxies)
 
-        res = requests.get(url, params=params, headers=headers)
+        res = requests.get(url, params=params, headers=headers, verify=False)
         html = res.text
 
         soup = BeautifulSoup(html, 'html.parser')
