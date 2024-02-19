@@ -40,7 +40,7 @@ SECRET_KEY = get_secret("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['cube4423.pythonanywhere.com']
+ALLOWED_HOSTS = ['cube4423.pythonanywhere.com', '127.0.0.1']
 
 # Application definition
 
