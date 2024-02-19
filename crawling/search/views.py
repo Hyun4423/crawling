@@ -39,7 +39,7 @@ def index(request):
         )
 
         proxy_server = random_us_proxy()
-        proxies = {"http": 'http://' + proxy_server, 'https': 'http://' + proxy_server}
+        proxies = {"http": 'http://' + proxy_server, 'https': 'https://' + proxy_server}
 
         res = requests.get(url, params=params, headers=headers, proxies=proxies)
         html = res.text
@@ -113,7 +113,7 @@ def search(request):
         )
 
         proxy_server = random_us_proxy()
-        proxies = {"http": 'http://' + proxy_server, 'https': 'http://' + proxy_server}
+        proxies = {"http": 'http://' + proxy_server, 'https': 'https://' + proxy_server}
 
         res = requests.get(url, params=params, headers=headers, proxies=proxies)
         html = res.text
