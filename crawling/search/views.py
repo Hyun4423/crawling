@@ -5,10 +5,9 @@ from bs4 import BeautifulSoup
 import requests
 import json
 from .models import Search
+import random
 
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'}
-
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'}
 
 def index(request):
     searchList = Search.objects.all()
@@ -39,14 +38,15 @@ def index(request):
             ('xq', ''),
         )
 
-        res = requests.get(url, params=params, headers=headers)
+        proxy_server = random_us_proxy()
+        proxies = {"http": 'http://' + proxy_server, 'https': 'http://' + proxy_server}
+
+        res = requests.get(url, params=params, headers=headers, proxies=proxies)
         html = res.text
 
         soup = BeautifulSoup(html, 'html.parser')
 
         content = soup.select_one("#content")
-
-        print("content {}".format(content))
 
         items = content.select("div.basicList_list_basis__uNBZx > div > div")
 
@@ -112,7 +112,10 @@ def search(request):
             ('xq', ''),
         )
 
-        res = requests.get(url, params=params, headers=headers)
+        proxy_server = random_us_proxy()
+        proxies = {"http": 'http://' + proxy_server, 'https': 'http://' + proxy_server}
+
+        res = requests.get(url, params=params, headers=headers, proxies=proxies)
         html = res.text
 
         soup = BeautifulSoup(html, 'html.parser')
@@ -141,3 +144,25 @@ def search(request):
     context = {"success": "success", "goodsList": goodsList}
 
     return JsonResponse(context)
+
+
+def random_us_proxy():
+    proxy_url = "https://www.us-proxy.org/"
+
+    res = requests.get(proxy_url)
+    soup = BeautifulSoup(res.text, 'html.parser')
+
+    table = soup.find('tbody')
+    rows = table.find_all('tr')
+    proxy_server_list = []
+
+    for row in rows:
+        https = row.find('td', attrs={'class': 'hx'})
+        if https.text == 'yes':
+            ip = row.find_all('td')[0].text
+            port = row.find_all('td')[1].text
+            server = f"{ip}:{port}"
+            proxy_server_list.append(server)
+
+    proxy_server = random.choices(proxy_server_list)[0]
+    return proxy_server
