@@ -16,7 +16,7 @@ def index(request):
 
     for obj in searchList:
 
-        url = "https://search.shopping.naver.com/search/all"
+        url = "http://search.shopping.naver.com/search/all"
         keyword = obj.keyword
 
         # params = None
@@ -46,6 +46,8 @@ def index(request):
         html = res.text
 
         soup = BeautifulSoup(html, 'html.parser')
+
+        print("soup => {}".format(soup))
 
         content = soup.select_one("#content")
 
