@@ -16,7 +16,7 @@ def index(request):
 
     for obj in searchList:
 
-        url = "http://search.shopping.naver.com/search/all"
+        url = "https://search.shopping.naver.com/search/all"
         keyword = obj.keyword
 
         # params = None
