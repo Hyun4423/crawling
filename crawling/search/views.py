@@ -10,7 +10,7 @@ from .models import Search
 def index(request):
     search_list = Search.objects.all()
 
-    goods_list = get_goods_list_by_api(search_list)
+    goods_list = get_goods_list(search_list)
 
     context = {"success": "success", "goods_list": goods_list, "search_list": search_list}
 
@@ -71,7 +71,7 @@ def get_goods_list(search_list):
             ('xq', ''),
         )
 
-        res = requests.get(url, params=params, headers=headers)
+        res = requests.post(url, params=params, headers=headers)
         html = res.text
 
         soup = BeautifulSoup(html, 'html.parser')
