@@ -6,11 +6,15 @@ import requests
 import json
 from .models import Search
 import random
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 import urllib.parse as url_parse
 
 
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Referer': 'https://www.google.com/'
+}
 
 def index(request):
     searchList = Search.objects.all()
@@ -50,8 +54,14 @@ def index(request):
 
         url = url + "?" + url_parse.urlencode(params)
 
-        with urlopen(url) as res:
-            html = res.read()
+        # Request 객체를 생성하여 URL과 헤더를 전달
+        req = Request(url, headers=headers)
+
+        # urlopen() 함수에 Request 객체를 전달하여 요청을 보냄
+        response = urlopen(req)
+
+        # 응답 받기
+        html = response.read()
 
         soup = BeautifulSoup(html, 'html.parser')
 
@@ -130,8 +140,11 @@ def search(request):
 
         url = url + "?" + url_parse.urlencode(params)
 
-        with urlopen(url) as res:
-            html = res.read()
+        # Request 객체를 생성하여 URL과 헤더를 전달
+        req = Request(url, headers=headers)
+
+        # urlopen() 함수에 Request 객체를 전달하여 요청을 보냄
+        response = urlopen(req)
 
         soup = BeautifulSoup(html, 'html.parser')
 
