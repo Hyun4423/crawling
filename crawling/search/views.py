@@ -8,6 +8,9 @@ from .models import Search
 import random
 from urllib.request import urlopen, Request
 import urllib.parse as url_parse
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 
 
 headers = {
@@ -20,6 +23,15 @@ def index(request):
     searchList = Search.objects.all()
 
     goodsList = []
+
+    # Headless 모드로 브라우저 실행을 위한 옵션 설정
+    options = webdriver.ChromeOptions()
+    options.add_argument("headless")
+
+    # 브라우저 열기
+    browser = webdriver.Chrome(options=options)
+
+    browser.set_window_size(1, 1)
 
     for obj in searchList:
 
@@ -54,14 +66,11 @@ def index(request):
 
         url = url + "?" + url_parse.urlencode(params)
 
-        # Request 객체를 생성하여 URL과 헤더를 전달
-        req = Request(url, headers=headers)
+        # 웹 페이지 열기
+        browser.get(url)
 
-        # urlopen() 함수에 Request 객체를 전달하여 요청을 보냄
-        response = urlopen(req)
-
-        # 응답 받기
-        html = response.read()
+        # 페이지 내용 가져오기
+        html = browser.find_element(By.TAG_NAME, 'body').get_attribute('innerHTML')
 
         soup = BeautifulSoup(html, 'html.parser')
 
@@ -87,6 +96,9 @@ def index(request):
                 {"title": title, "link": link, "price": price, "dlv": dlv, "compImg": compImg, "compText": compText})
 
     context = {"success": "success", "goodsList": goodsList, "searchList": searchList}
+
+    # 브라우저 닫기
+    browser.quit()
 
     return render(request, 'search/index.html', context)
 
