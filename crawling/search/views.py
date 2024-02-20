@@ -146,6 +146,9 @@ def search(request):
         # urlopen() 함수에 Request 객체를 전달하여 요청을 보냄
         response = urlopen(req)
 
+        # 응답 받기
+        html = response.read()
+
         soup = BeautifulSoup(html, 'html.parser')
 
         content = soup.select_one("#content")
