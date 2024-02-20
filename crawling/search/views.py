@@ -77,7 +77,7 @@ def get_goods_list(search_list):
 
     # Headless 모드로 브라우저 실행을 위한 옵션 설정
     options = webdriver.ChromeOptions()
-    options.add_argument("headless")
+    # options.add_argument("headless")
 
     # 브라우저 열기
     browser = webdriver.Chrome(options=options)
