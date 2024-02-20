@@ -10,9 +10,7 @@ from .models import Search
 def index(request):
     search_list = Search.objects.all()
 
-    goods_list = []
-
-    goods_list = get_goods_list(search_list)
+    goods_list = get_goods_list_by_api(search_list)
 
     context = {"success": "success", "goods_list": goods_list, "search_list": search_list}
 
@@ -44,8 +42,9 @@ def get_goods_list(search_list):
     goods_list = []
 
     headers = {
-        'X-Naver-Client-Id': 'WYdzqfyzZbAGjLV653ZH',
-        'X-Naver-Client-Secret': 'C7XOh2cboZ'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36',
+        'X-Remote-IP': '172.16.31.10',
+        'X-Rewrite-URL': 'http://172.16.31.10'
     }
 
     for obj in search_list:
