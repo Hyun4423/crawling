@@ -58,6 +58,7 @@
                                     <div class="form-group">
                                         <label>검색어:</label>
                                         <select class="select" class="form-control" style="width: 100%;" id="keywords">
+                                            <option value="">선택해주세요.</option>
                                             <option value="전체">전체</option>
                                             {% for search in search_list %}
                                             <option value="{{search.keyword}}">{{search.keyword}}</option>
@@ -113,6 +114,7 @@
                                 {% endfor %}
                                 {% else %}
                                 <tr>
+                                    <iframe src="https://search.shopping.naver.com/search/all">
                                     <td colspan="4" class="text-center">
                                         <a href="https://search.shopping.naver.com/search/all">test1</a>
                                         <a target="_blank" href="https://search.shopping.naver.com/search/all">test2</a>

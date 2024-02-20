@@ -11,6 +11,7 @@ import urllib.parse as url_parse
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+import webbrowser
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
@@ -22,7 +23,9 @@ headers = {
 def index(request):
     search_list = Search.objects.all()
 
-    goods_list = get_goods_list(search_list)
+    goods_list = []
+
+    # goods_list = get_goods_list(search_list)
 
     context = {"success": "success", "goods_list": goods_list, "search_list": search_list}
 
@@ -119,26 +122,7 @@ def get_goods_list(search_list):
         url = url + "?" + url_parse.urlencode(params)
 
         # 웹 페이지 열기
-        try:
-            browser.get(url)
-        except Exception as e:
-            print(e)
-        try:
-            webdriver.Firefox().get(url)
-        except Exception as e:
-            print(e)
-        try:
-            webdriver.Edge().get(url)
-        except Exception as e:
-            print(e)
-        try:
-            webdriver.ChromiumEdge().get(url)
-        except Exception as e:
-            print(e)
-        try:
-            webdriver.Safari().get(url)
-        except Exception as e:
-            print(e)
+        browser.get(url)
 
         # 페이지 내용 가져오기
         html = browser.find_element(By.TAG_NAME, 'body').get_attribute('innerHTML')
