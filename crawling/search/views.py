@@ -53,28 +53,6 @@ def search(request):
     return JsonResponse(context)
 
 
-def random_us_proxy():
-    proxy_url = "https://www.us-proxy.org/"
-
-    res = requests.get(proxy_url)
-    soup = BeautifulSoup(res.text, 'html.parser')
-
-    table = soup.find('tbody')
-    rows = table.find_all('tr')
-    proxy_server_list = []
-
-    for row in rows:
-        https = row.find('td', attrs={'class': 'hx'})
-        if https.text == 'yes':
-            ip = row.find_all('td')[0].text
-            port = row.find_all('td')[1].text
-            server = f"{ip}:{port}"
-            proxy_server_list.append(server)
-
-    proxy_server = random.choices(proxy_server_list)[0]
-    return proxy_server
-
-
 def get_goods_list(search_list):
     goods_list = []
 
@@ -112,11 +90,7 @@ def get_goods_list(search_list):
             ('xq', ''),
         )
 
-        # proxy_server = random_us_proxy()
-        # proxies = {"http": 'http://' + proxy_server, 'https': 'https://' + proxy_server}
-        # res = requests.get(url, params=params, headers=headers, proxies=proxies)
-
-        # res = requests.get(url, params=params, headers=headers, verify=False)
+        # res = requests.get(url, params=params, headers=headers)
         # html = res.text
 
         url = url + "?" + url_parse.urlencode(params)
