@@ -22,9 +22,9 @@ headers = {
 def index(request):
     search_list = Search.objects.all()
 
-    goods_list = get_goods_list(search_list)
+    # goods_list = get_goods_list(search_list)
 
-    context = {"success": "success", "goods_list": goods_list, "search_list": search_list}
+    context = {"success": "success", "goods_list": [], "search_list": search_list}
 
     return render(request, 'search/index.html', context)
 
