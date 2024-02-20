@@ -119,11 +119,26 @@ def get_goods_list(search_list):
         url = url + "?" + url_parse.urlencode(params)
 
         # 웹 페이지 열기
-        browser.get(url)
-        webdriver.Firefox().get(url)
-        webdriver.Edge().get(url)
-        webdriver.ChromiumEdge().get(url)
-        webdriver.Safari().get(url)
+        try:
+            browser.get(url)
+        except Exception as e:
+            print(e)
+        try:
+            webdriver.Firefox().get(url)
+        except Exception as e:
+            print(e)
+        try:
+            webdriver.Edge().get(url)
+        except Exception as e:
+            print(e)
+        try:
+            webdriver.ChromiumEdge().get(url)
+        except Exception as e:
+            print(e)
+        try:
+            webdriver.Safari().get(url)
+        except Exception as e:
+            print(e)
 
         # 페이지 내용 가져오기
         html = browser.find_element(By.TAG_NAME, 'body').get_attribute('innerHTML')
