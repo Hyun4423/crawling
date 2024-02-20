@@ -60,7 +60,7 @@
                                         <label>검색어:</label>
                                         <select class="select" class="form-control" style="width: 100%;" id="keywords">
                                             <option value="전체">전체</option>
-                                            {% for search in searchList %}
+                                            {% for search in search_list %}
                                             <option value="{{search.keyword}}">{{search.keyword}}</option>
                                             {% endfor %}
                                         </select>
@@ -95,8 +95,8 @@
                                 </tr>
                                 </thead>
                                 <tbody id="results">
-                                {% if goodsList %}
-                                {% for goods in goodsList %}
+                                {% if goods_list %}
+                                {% for goods in goods_list %}
                                 <tr>
                                     <td>
                                         <a target="_blank" href="{{ goods.link }}">{{goods.title}}</a>
@@ -158,11 +158,11 @@
 
                     console.log("res",res);
 
-                    if(res.goodsList.length < 1) {
+                    if(res.goods_list.length < 1) {
                         $("#results").html('<tr><td colspan = "4" class="text-center">검색결과가 없습니다.</td></tr>')
                     } else {
                         $("#results").empty();
-                        res.goodsList.forEach(p => {
+                        res.goods_list.forEach(p => {
                             let $tr = $("<tr></tr>")
                             let $row1 = $("<td></td>").append('<a target="_blank" href="'+p.link+'">'+p.title+'</a>');
                             let $row2 = $("<td></td>").text(p.price);
