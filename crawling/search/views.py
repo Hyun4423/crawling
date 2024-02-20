@@ -45,7 +45,7 @@ def search(request):
 
     goods_list = get_goods_list(search_list)
 
-    context = {"success": "success", "goodsList": goods_list}
+    context = {"success": "success", "goods_list": goods_list}
 
     return JsonResponse(context)
 
