@@ -47,11 +47,7 @@ def index(request):
 
         soup = BeautifulSoup(html, 'html.parser')
 
-        print("soup => {}".format(soup))
-
         content = soup.select_one("#content")
-
-        print("content => {}".format(content))
 
         items = content.select("div.basicList_list_basis__uNBZx > div > div")
 

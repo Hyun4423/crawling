@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "path/to/your/django/project",
+      "use": "@vercel/python"
+    }
+  ]
+}
