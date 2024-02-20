@@ -5,19 +5,6 @@ from bs4 import BeautifulSoup
 import requests
 import json
 from .models import Search
-import random
-from urllib.request import urlopen, Request
-import urllib.parse as url_parse
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-import webbrowser
-
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
-    'Accept-Language': 'en-US,en;q=0.9',
-    'Referer': 'https://www.google.com/'
-}
 
 
 def index(request):
@@ -25,7 +12,7 @@ def index(request):
 
     goods_list = []
 
-    # goods_list = get_goods_list(search_list)
+    goods_list = get_goods_list(search_list)
 
     context = {"success": "success", "goods_list": goods_list, "search_list": search_list}
 
@@ -56,15 +43,10 @@ def search(request):
 def get_goods_list(search_list):
     goods_list = []
 
-    # Headless 모드로 브라우저 실행을 위한 옵션 설정
-    options = webdriver.ChromeOptions()
-    options.add_argument("headless")
-    options.add_argument("--no-sandbox")
-
-    # 브라우저 열기
-    browser = webdriver.Chrome(options=options)
-
-    browser.set_window_size(1, 1)
+    headers = {
+        'X-Naver-Client-Id': 'WYdzqfyzZbAGjLV653ZH',
+        'X-Naver-Client-Secret': 'C7XOh2cboZ'
+    }
 
     for obj in search_list:
 
@@ -90,16 +72,8 @@ def get_goods_list(search_list):
             ('xq', ''),
         )
 
-        # res = requests.get(url, params=params, headers=headers)
-        # html = res.text
-
-        url = url + "?" + url_parse.urlencode(params)
-
-        # 웹 페이지 열기
-        browser.get(url)
-
-        # 페이지 내용 가져오기
-        html = browser.find_element(By.TAG_NAME, 'body').get_attribute('innerHTML')
+        res = requests.get(url, params=params, headers=headers)
+        html = res.text
 
         soup = BeautifulSoup(html, 'html.parser')
 
@@ -124,7 +98,36 @@ def get_goods_list(search_list):
             goods_list.append(
                 {"title": title, "link": link, "price": price, "dlv": dlv, "compImg": compImg, "compText": compText})
 
-    # 브라우저 닫기
-    browser.quit()
+    return goods_list
+
+
+def get_goods_list_by_api(search_list):
+    goods_list = []
+
+    headers = {
+        'X-Naver-Client-Id': 'WYdzqfyzZbAGjLV653ZH',
+        'X-Naver-Client-Secret': 'C7XOh2cboZ'
+    }
+
+    for obj in search_list:
+
+        url = "https://openapi.naver.com/v1/search/shop.json"
+        keyword = obj.keyword
+
+        params = {
+            'query': keyword,
+            'display': 3,
+            'sort': "asc"
+        }
+
+        res = requests.get(url, params=params, headers=headers)
+        data = res.json()
+
+        for item in data['items']:
+            goods_list.append(
+                {'title': item['title'], "link": item['link'], "price": item['lprice'], "compText": item['mallName'],
+                 "dlv": "", "compImg": ""}
+            )
 
     return goods_list
+
