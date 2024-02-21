@@ -1,24 +1,20 @@
-import time
-
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from bs4 import BeautifulSoup
-import requests
-import json
-from .models import Search
-from selenium import webdriver
 from urllib.parse import urlencode
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import StaleElementReferenceException
+
+import requests
+from bs4 import BeautifulSoup
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+from selenium import webdriver
+
+from .models import Search
+
 
 def index(request):
     search_list = Search.objects.all()
 
-    # goods_list = []
-    goods_list = get_goods_list(search_list)
+    goods_list = []
+    # goods_list = get_goods_list(search_list)
     # goods_list = get_goods_list_by_api(search_list)
     # goods_list = get_goods_list_by_webdriver(request, search_list)
 
@@ -41,9 +37,9 @@ def search(request):
     else:
         search_list = Search.objects.all()
 
-    goods_list = get_goods_list(search_list)
+    # goods_list = get_goods_list(search_list)
     # goods_list = get_goods_list_by_api(search_list)
-    # goods_list = get_goods_list_by_webdriver(request,search_list)
+    goods_list = get_goods_list_by_webdriver(request,search_list)
 
     context = {"success": "success", "goods_list": goods_list}
 
@@ -52,6 +48,10 @@ def search(request):
 
 def get_goods_list(search_list):
     goods_list = []
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
 
     for obj in search_list:
 
@@ -77,8 +77,10 @@ def get_goods_list(search_list):
             ('xq', ''),
         )
 
-        res = requests.post(url, params=params)
+        res = requests.get(url, params=params, headers=headers)
         html = res.text
+
+        print("html {} ".format(html))
 
         soup = BeautifulSoup(html, 'html.parser')
 
@@ -142,13 +144,8 @@ def get_goods_list_by_webdriver(request, search_list):
 
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--disable-dev-shm-usage')
 
     driver = webdriver.Chrome(options=options)
-
-    driver.get(request.build_absolute_uri().replace(request.path, ''))
 
     for obj in search_list:
 
@@ -176,19 +173,9 @@ def get_goods_list_by_webdriver(request, search_list):
 
         url = url + "?" + urlencode(params)
 
-        iframe = driver.find_element(By.ID, 'my-window-iframe')
-
-        # iframe의 src 속성 변경
-        driver.execute_script('arguments[0].src = arguments[1];', iframe, url)
-
-        # iframe이 로드되기를 기다림
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "my-window-iframe")))
-
-        driver.switch_to.frame(iframe)
+        driver.get(url)
 
         soup = BeautifulSoup(driver.page_source, 'html.parser')
-
-        driver.switch_to.default_content()
 
         content = soup.select_one("#content")
 
