@@ -140,8 +140,9 @@ def get_goods_list_by_webdriver(request, search_list):
     goods_list = []
 
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
+    options.add_argument("--no-sandbox")
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
 
     driver = webdriver.Chrome(options=options)
 
