@@ -17,8 +17,9 @@ from selenium.common.exceptions import StaleElementReferenceException
 def index(request):
     search_list = Search.objects.all()
 
-    goods_list = get_goods_list(search_list)
+    # goods_list = get_goods_list(search_list)
     # goods_list = get_goods_list_by_api(search_list)
+    goods_list = get_goods_list_by_webdriver(request, search_list)
 
     context = {"success": "success", "goods_list": goods_list, "search_list": search_list}
 
