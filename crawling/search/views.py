@@ -17,9 +17,10 @@ from selenium.common.exceptions import StaleElementReferenceException
 def index(request):
     search_list = Search.objects.all()
 
+    goods_list = []
     # goods_list = get_goods_list(search_list)
     # goods_list = get_goods_list_by_api(search_list)
-    goods_list = get_goods_list_by_webdriver(request, search_list)
+    # goods_list = get_goods_list_by_webdriver(request, search_list)
 
     context = {"success": "success", "goods_list": goods_list, "search_list": search_list}
 
@@ -40,9 +41,9 @@ def search(request):
     else:
         search_list = Search.objects.all()
 
-    goods_list = get_goods_list_by_webdriver(request, search_list)
     # goods_list = get_goods_list(search_list)
     # goods_list = get_goods_list_by_api(search_list)
+    goods_list = get_goods_list_by_webdriver(request,search_list)
 
     context = {"success": "success", "goods_list": goods_list}
 
@@ -140,10 +141,10 @@ def get_goods_list_by_webdriver(request, search_list):
     goods_list = []
 
     options = webdriver.ChromeOptions()
-    options.add_argument("--no-sandbox")
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--disable-dev-shm-usage')
 
     driver = webdriver.Chrome(options=options)
 
