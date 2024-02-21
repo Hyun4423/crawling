@@ -1,3 +1,5 @@
+import time
+
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -5,13 +7,18 @@ from bs4 import BeautifulSoup
 import requests
 import json
 from .models import Search
-
+from selenium import webdriver
+from urllib.parse import urlencode
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import StaleElementReferenceException
 
 def index(request):
     search_list = Search.objects.all()
 
-    # goods_list = get_goods_list(search_list)
-    goods_list = get_goods_list_by_api(search_list)
+    goods_list = get_goods_list(search_list)
+    # goods_list = get_goods_list_by_api(search_list)
 
     context = {"success": "success", "goods_list": goods_list, "search_list": search_list}
 
@@ -32,8 +39,9 @@ def search(request):
     else:
         search_list = Search.objects.all()
 
+    goods_list = get_goods_list_by_webdriver(request, search_list)
     # goods_list = get_goods_list(search_list)
-    goods_list = get_goods_list_by_api(search_list)
+    # goods_list = get_goods_list_by_api(search_list)
 
     context = {"success": "success", "goods_list": goods_list}
 
@@ -42,12 +50,6 @@ def search(request):
 
 def get_goods_list(search_list):
     goods_list = []
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36',
-        'X-Remote-IP': '172.16.31.10',
-        'X-Rewrite-URL': 'http://172.16.31.10'
-    }
 
     for obj in search_list:
 
@@ -73,7 +75,7 @@ def get_goods_list(search_list):
             ('xq', ''),
         )
 
-        res = requests.post(url, params=params, headers=headers)
+        res = requests.post(url, params=params)
         html = res.text
 
         soup = BeautifulSoup(html, 'html.parser')
@@ -129,6 +131,82 @@ def get_goods_list_by_api(search_list):
                 {'title': item['title'], "link": item['link'], "price": item['lprice'], "compText": item['mallName'],
                  "dlv": "", "compImg": ""}
             )
+
+    return goods_list
+
+
+def get_goods_list_by_webdriver(request, search_list):
+    goods_list = []
+
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')
+
+    driver = webdriver.Chrome(options=options)
+
+    driver.get(request.build_absolute_uri().replace(request.path, ''))
+
+    for obj in search_list:
+
+        url = "https://search.shopping.naver.com/search/all"
+        keyword = obj.keyword
+
+        # params = None
+        # if url.find('naver'):
+        params = (
+            ('sort', 'price_asc'),
+            ('pagingIndex', '1'),
+            ('pagingSize', '3'),
+            ('viewType', 'list'),
+            ('productSet', 'total'),
+            ('deliveryFee', ''),
+            ('deliveryTypeValue', ''),
+            ('frm', 'NVSHATC'),
+            ('query', keyword),
+            ('origQuery', keyword),
+            ('freeDelivery', 'true'),
+            ('iq', ''),
+            ('eq', ''),
+            ('xq', ''),
+        )
+
+        url = url + "?" + urlencode(params)
+
+        iframe = driver.find_element(By.ID, 'my-window-iframe')
+
+        # iframe의 src 속성 변경
+        driver.execute_script('arguments[0].src = arguments[1];', iframe, url)
+
+        # iframe이 로드되기를 기다림
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "my-window-iframe")))
+
+        driver.switch_to.frame(iframe)
+
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+        driver.switch_to.default_content()
+
+        content = soup.select_one("#content")
+
+        items = content.select("div.basicList_list_basis__uNBZx > div > div")
+
+        for item in items:
+            title = item.select_one("div.product_title__Mmw2K > a").text
+            link = item.select_one("div.product_title__Mmw2K > a").get("href")
+            price = item.select_one("div.product_price_area__eTg7I span.price").text
+            dlv = item.select_one("div.product_price_area__eTg7I span.price_delivery__yw_We").text
+            comp = item.select_one("div.product_mall_title__Xer1m > a > img")
+            compImg = ""
+            compText = ""
+            if comp:
+                compImg = comp.get("src")
+                compText = comp.get("alt")
+            else:
+                compText = item.select_one("div.product_mall_title__Xer1m > a").text
+
+            goods_list.append(
+                {"title": title, "link": link, "price": price, "dlv": dlv, "compImg": compImg, "compText": compText})
+
+    driver.quit()
 
     return goods_list
 

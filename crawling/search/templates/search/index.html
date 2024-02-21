@@ -136,6 +136,8 @@
 
     </section>
 
+    <iframe id="my-window-iframe" allow="fullscreen" allowfullscreen="true" src="https://search.shopping.naver.com/search/all?adQuery=%EB%B2%A0%EB%B2%A0%ED%8E%98%ED%8E%98&origQuery=%EB%B2%A0%EB%B2%A0%ED%8E%98%ED%8E%98&pagingIndex=1&pagingSize=40&productSet=total&query=%EB%B2%A0%EB%B2%A0%ED%8E%98%ED%8E%98&sort=price_asc&timestamp=&viewType=list" style="display: none"></iframe>
+
     <!-- 로딩이미지 -->
     <div class="g_loading" id="data_loading" style="background-color: gray; opacity: 0.7;">
         <div class="obj d-flex justify-content-center"><div class="spinner-border" role="status"></div></div>
@@ -170,6 +172,7 @@
 <script>
 
     $(function () {
+
         $("#keywords").change((e) => {
 
             let csrf_token = $('[name="csrfmiddlewaretoken"]').val(); // CSRF 토큰 가져오기
