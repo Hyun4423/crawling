@@ -148,7 +148,11 @@ def get_goods_list_by_webdriver(request, search_list):
 
     driver = webdriver.Chrome(options=options)
 
+    print("driver.get start")
+
     driver.get(request.build_absolute_uri().replace(request.path, ''))
+
+    print("driver.get end")
 
     for obj in search_list:
 
@@ -176,19 +180,43 @@ def get_goods_list_by_webdriver(request, search_list):
 
         url = url + "?" + urlencode(params)
 
+        print("driver.find_element.get start")
+
         iframe = driver.find_element(By.ID, 'my-window-iframe')
+
+        print("driver.find_element.get end")
+
+        print("driver.execute_script start")
 
         # iframe의 src 속성 변경
         driver.execute_script('arguments[0].src = arguments[1];', iframe, url)
 
+        print("driver.execute_script end")
+
+        print("WebDriverWait start")
+
         # iframe이 로드되기를 기다림
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "my-window-iframe")))
 
+        print("WebDriverWait end")
+
+        print("switch_to start")
+
         driver.switch_to.frame(iframe)
+
+        print("switch_to end")
+
+        print("BeautifulSoup start")
 
         soup = BeautifulSoup(driver.page_source, 'html.parser')
 
+        print("BeautifulSoup end")
+
+        print("default_content start")
+
         driver.switch_to.default_content()
+
+        print("default_content end")
 
         content = soup.select_one("#content")
 
