@@ -139,10 +139,11 @@ def get_goods_list_by_api(search_list):
 def get_goods_list_by_webdriver(request, search_list):
     goods_list = []
 
-    options = webdriver.ChromeOptions()
+    options = webdriver.FirefoxOptions()
     options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
 
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Firefox(options=options)
 
     driver.get(request.build_absolute_uri().replace(request.path, ''))
 
