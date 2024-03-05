@@ -19,7 +19,7 @@
     <!--    {% bootstrap_css %}-->
     <!--    {% bootstrap_javascript %}-->
     <meta charset="UTF-8">
-    <title>searchIndex</title>
+    <title>test</title>
 </head>
 <body>
 
@@ -67,7 +67,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <!--                            <button type="button" class="btn btn-primary" style="float: right;" onclick="search()">검색</button>-->
+                            <button type="button" class="btn btn-primary" style="float: right;" onclick="test()">검색</button>
                         </div>
                     </div>
 
@@ -138,36 +138,53 @@
 
     <!-- 로딩이미지 -->
     <div class="g_loading" id="data_loading" style="background-color: gray; opacity: 0.7;">
-        <div class="obj d-flex justify-content-center"><div class="spinner-border" role="status"></div></div>
+        <div class="obj d-flex justify-content-center">
+            <div class="spinner-border" role="status"></div>
+        </div>
         <br><br>
         <div class="obj" style="color: white;">몰래 긁어오는중!</div>
     </div>
     <!--//-->
 
     <style>
-      .g_loading {
-        display: none;
-        position: fixed;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 999999;
-      }
+        .g_loading {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999999;
+        }
 
-      .g_loading .obj {
-        width: 200px;
-        height: 50px;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-      }
+        .g_loading .obj {
+            width: 200px;
+            height: 50px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+        }
     </style>
+
+    <iframe id="my_window_iframe" src="http://search.shopping.naver.com/search/all?query=%EB%B2%A0%EB%B2%A0%ED%8E%98%ED%8E%98"></iframe>
 
 </body>
 </html>
 
 <script>
+
+    function test() {
+
+        let myWindow = window.open("https://shopping.naver.com/home","my-window");
+
+        console.log("myWindow",myWindow);
+
+        setTimeout(() => {
+            console.log("myWindow.header",myWindow.header);
+            console.log("myWindow.headers",myWindow.headers);
+        }, 1000)
+
+    }
 
     $(function () {
 
@@ -186,31 +203,38 @@
                 },
                 success: function (res) {
 
-                    console.log("res",res);
+                    console.log("res", res);
 
-                    if(res.goods_list.length < 1) {
-                        $("#results").html('<tr><td colspan = "4" class="text-center">검색결과가 없습니다.</td></tr>')
+                    if(res.status == "success") {
+
+                        if (res.goods_list.length < 1) {
+                            $("#results").html('<tr><td colspan = "4" class="text-center">검색결과가 없습니다.</td></tr>')
+                        } else {
+                            $("#results").empty();
+                            res.goods_list.forEach(p => {
+                                let $tr = $("<tr></tr>")
+                                let $row1 = $("<td></td>").append('<a target="_blank" href="' + p.link + '">' + p.title + '</a>');
+                                let $row2 = $("<td></td>").text(p.price);
+                                let $row3 = $("<td></td>").text(p.dlv);
+                                let $row4 = $("<td></td>");
+                                if (p.compImg) {
+                                    $row4.append('<img src="' + p.compImg + '" alt="' + p.compText + '">')
+                                } else {
+                                    $row4.text(p.compText);
+                                }
+
+                                $tr.append($row1);
+                                $tr.append($row2);
+                                $tr.append($row3);
+                                $tr.append($row4);
+                                $("#results").append($tr);
+                            });
+                        }
+
                     } else {
-                        $("#results").empty();
-                        res.goods_list.forEach(p => {
-                            let $tr = $("<tr></tr>")
-                            let $row1 = $("<td></td>").append('<a target="_blank" href="'+p.link+'">'+p.title+'</a>');
-                            let $row2 = $("<td></td>").text(p.price);
-                            let $row3 = $("<td></td>").text(p.dlv);
-                            let $row4 = $("<td></td>");
-                            if(p.compImg) {
-                                $row4.append('<img src="'+p.compImg+'" alt="'+p.compText+'">')
-                            } else {
-                                $row4.text(p.compText);
-                            }
-
-                            $tr.append($row1);
-                            $tr.append($row2);
-                            $tr.append($row3);
-                            $tr.append($row4);
-                            $("#results").append($tr);
-                        })
+                        console.log("error", res.error);
                     }
+
 
                     $("#data_loading").hide();
 
@@ -222,38 +246,4 @@
         });
     })
 
-    function search() {
-        let keyword = $("#keyword").val();
-
-        let csrf_token = $('[name="csrfmiddlewaretoken"]').val(); // CSRF 토큰 가져오기
-
-        $.ajax({
-            type: "POST",
-            url: "/search",
-            data: {
-                "csrfmiddlewaretoken": csrf_token,
-                "keyword": keyword
-            },
-            success: function (res) {
-                console.log("res", res);
-                if (res && res.content) {
-                    $("#content").html(res.content);
-                }
-                if (res && res.styles) {
-                    res.styles.forEach(p => {
-                        $("head").append(p);
-                    })
-                }
-                if (res && res.links) {
-                    res.links.forEach(p => {
-                        let link = '<link rel="stylesheet" href="' + p + '">'
-                        $("head").append(link);
-                    })
-                }
-            }, error: function (xhr, status, error) {
-
-            }
-        });
-
-    }
 </script>

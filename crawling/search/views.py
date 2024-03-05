@@ -2,26 +2,34 @@ from urllib.parse import urlencode
 
 import requests
 from bs4 import BeautifulSoup
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from selenium import webdriver
+import json
 
 from .models import Search
-
 
 def index(request):
     search_list = Search.objects.all()
 
     goods_list = []
-    # goods_list = get_goods_list(search_list)
-    # goods_list = get_goods_list_by_api(search_list)
-    # goods_list = get_goods_list_by_webdriver(request, search_list)
 
     context = {"success": "success", "goods_list": goods_list, "search_list": search_list}
 
     return render(request, 'search/index.html', context)
 
+
+@csrf_exempt
+def result(request):
+    goods_list = []
+
+    if request.method == "POST":
+        goods_list = request.POST.get("goods_list")
+
+    context = {"success": "success", "goods_list": goods_list, "search_list": search_list}
+
+    return render(request, 'search/index.html', context)
 
 @csrf_exempt
 def search(request):
@@ -37,11 +45,9 @@ def search(request):
     else:
         search_list = Search.objects.all()
 
-    # goods_list = get_goods_list(search_list)
-    # goods_list = get_goods_list_by_api(search_list)
-    goods_list = get_goods_list_by_webdriver(request,search_list)
+    goods_list = get_goods_list(search_list)
 
-    context = {"success": "success", "goods_list": goods_list}
+    context = {"status": "success", "goods_list": goods_list}
 
     return JsonResponse(context)
 
@@ -50,16 +56,14 @@ def get_goods_list(search_list):
     goods_list = []
 
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'
     }
 
     for obj in search_list:
 
-        url = "https://search.shopping.naver.com/search/all"
+        url = "http://search.shopping.naver.com/search/all"
         keyword = obj.keyword
 
-        # params = None
-        # if url.find('naver'):
         params = (
             ('sort', 'price_asc'),
             ('pagingIndex', '1'),
@@ -79,8 +83,6 @@ def get_goods_list(search_list):
 
         res = requests.get(url, params=params, headers=headers)
         html = res.text
-
-        print("html {} ".format(html))
 
         soup = BeautifulSoup(html, 'html.parser')
 
@@ -118,7 +120,7 @@ def get_goods_list_by_api(search_list):
 
     for obj in search_list:
 
-        url = "https://openapi.naver.com/v1/search/shop.json"
+        url = "http://openapi.naver.com/v1/search/shop.json"
         keyword = obj.keyword
 
         params = {
@@ -149,7 +151,7 @@ def get_goods_list_by_webdriver(request, search_list):
 
     for obj in search_list:
 
-        url = "https://search.shopping.naver.com/search/all"
+        url = "http://search.shopping.naver.com/search/all"
         keyword = obj.keyword
 
         # params = None
@@ -201,4 +203,20 @@ def get_goods_list_by_webdriver(request, search_list):
     driver.quit()
 
     return goods_list
+
+
+def get_search_list(request):
+
+    search_list = []
+
+    for obj in Search.objects.all():
+        searchObj = {
+            'keyword': u''+obj.keyword
+        }
+
+        search_list.append(searchObj)
+
+    # return JsonResponse({'search_list': search_list})
+    response_data = json.dumps({'search_list': search_list}, ensure_ascii=False)
+    return HttpResponse(response_data, content_type='application/json')
 

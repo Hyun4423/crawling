@@ -21,6 +21,8 @@ app_name = "search"
 
 urlpatterns = [
     path('', views.index, name="index"),
+    path('result', views.result, name="result"),
+    path('get_search_list', views.get_search_list, name="get_search_list"),
     path('search', views.search, name="search"),
     path('admin/', admin.site.urls),
 ]
